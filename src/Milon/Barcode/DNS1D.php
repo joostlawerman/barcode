@@ -85,10 +85,10 @@ class DNS1D {
      * @return string SVG code.
      * @public
      */
-    public function getBarcodeSVG($code, $type, $w = 2, $h = 30, $color = 'black') {
-        if (!$this->store_path) {
+    public function getBarcodeSVG($code, $type, $w = 2, $h = 30, $color = 'black', $label = false, $textHeight = 12) {
+        /*if (!$this->store_path) {
             $this->setStorPath(\Config::get("barcode.store_path"));
-        }
+        }*/
         $this->setBarcode($code, $type);
         // replace table for special characters
         $repstr = array("\0" => '', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;');
@@ -97,6 +97,11 @@ class DNS1D {
         $svg .= '<svg width="' . round(($this->barcode_array['maxw'] * $w), 3) . '" height="' . $h . '" version="1.1" xmlns="http://www.w3.org/2000/svg">' . "\n";
         $svg .= "\t" . '<desc>' . strtr($this->barcode_array['code'], $repstr) . '</desc>' . "\n";
         $svg .= "\t" . '<g id="bars" fill="' . $color . '" stroke="none">' . "\n";
+
+        if ($label) {
+            $h -= $textHeight - 2;
+        }
+
         // print bars
         $x = 0;
         foreach ($this->barcode_array['bcode'] as $k => $v) {
@@ -109,7 +114,12 @@ class DNS1D {
             }
             $x += $bw;
         }
-        $svg .= "\t" . '</g>' . "\n";
+        $svg .= "\t";
+        if ($label) {
+            $svg .= '<text x="50%" y="' . ($h + $textHeight - 2) . '" text-anchor="middle" style="font-size: '.$textHeight.'px; stroke: none; fill:#000000;">'.$code.'</text>';
+        }
+        $svg .= '</g>' . "\n";
+
         $svg .= '</svg>' . "\n";
         return $svg;
     }
